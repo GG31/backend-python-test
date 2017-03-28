@@ -74,6 +74,15 @@ def todos_POST():
     g.db.commit()
     return redirect('/todo')
 
+@app.route('/todo/<id>', methods=['POST'])
+def todos_complete(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    g.db.execute(
+        "UPDATE todos SET is_complete = 1 WHERE id = '%s'" % id
+    )
+    g.db.commit()
+    return redirect('/todo')
 
 @app.route('/todo/<id>', methods=['POST'])
 def todo_delete(id):

@@ -4,7 +4,7 @@
 <div class="col-md-4 col-md-offset-4">
     <h1>Todo List:</h1>
     <table class="table table-striped">
-        <th>#</th><th>User</th><th>Description</th><th></th>
+        <th>#</th><th>User</th><th>Description</th><th>Done</th><th></th>
         {% for todo in todos %}
             <tr>
                 <td>{{ todo.id }}</td>
@@ -13,6 +13,15 @@
                     <a href="{{ url_for('todo', id=todo.id) }}">
                        {{ todo.description }}
                     </a>
+                </td>
+                <td>
+                    {% if not todo.is_complete %}
+                    <form method="post" action="{{ url_for('todos_complete', id=todo.id) }}">
+                        <button type="submit" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-ok glyphicon-white"></span></button>
+                    </form>
+                    {% else %}
+                        <button type="submit" class="btn btn-xs btn-success disabled"><span class="glyphicon glyphicon-ok glyphicon-white"></span></button>
+                    {% endif %}
                 </td>
                 <td>
                     <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
@@ -33,4 +42,5 @@
         </tr>
     </table>
 </div>
+
 {% endblock %}
