@@ -63,13 +63,17 @@ def todo(id):
     return render_template('todo.html', todo=todo)
 
 
+def getTodos():
+    cur = g.db.execute("SELECT * FROM todos")
+    todos = cur.fetchall()
+    return todos
+
 @app.route('/todo', methods=['GET'])
 @app.route('/todo/', methods=['GET'])
 def todos():
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
-    todos = cur.fetchall()
+    todos = getTodos()
     return render_template('todos.html', todos=todos)
 
 
@@ -80,14 +84,18 @@ def todos_POST():
         return redirect('/login')
     if request.form.get('description', '') == '':
         return redirect('/todo')
-    g.db.execute(
-        "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
-        % (session['user']['id'], request.form.get('description', ''))
-    )
-    g.db.commit()
-    return redirect('/todo')
+    result = 'Todo added'
+    try:
+        g.db.execute(
+            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
+            % (session['user']['id'], request.form.get('description', ''))
+        )
+        g.db.commit()
+    except:
+        result = 'Error'
+    return render_template('todos.html', todos=getTodos(), result=result)
 
-@app.route('/todo/<id>', methods=['POST'])
+@app.route('/todo/complete/<id>', methods=['POST'])
 def todos_complete(id):
     if not session.get('logged_in'):
         return redirect('/login')
@@ -101,6 +109,10 @@ def todos_complete(id):
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
-    g.db.commit()
-    return redirect('/todo')
+    result = 'Todo ' + id + ' deleted'
+    try:
+        g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
+        g.db.commit()
+    except:
+        result = 'Error'
+    return render_template('todos.html', todos=getTodos(), result=result)
