@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import *
 
+import alayatodo.views
 
 app = Flask(__name__)
+
 app.config.from_object(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.DATABASE
 
@@ -26,4 +28,3 @@ def teardown_request(exception):
         db.close()
 
 
-import alayatodo.views
