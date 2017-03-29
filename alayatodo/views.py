@@ -8,6 +8,7 @@ from flask import (
     jsonify
     )
 
+from config import todosPerPage
 
 @app.route('/')
 def home():
@@ -63,18 +64,18 @@ def todo(id):
     return render_template('todo.html', todo=todo)
 
 
-def getTodos():
-    cur = g.db.execute("SELECT * FROM todos")
+def getTodos(page):
+    cur = g.db.execute("SELECT * FROM todos limit %s offset %s " % (todosPerPage, todosPerPage * int(page)))
     todos = cur.fetchall()
     return todos
 
 @app.route('/todo', methods=['GET'])
-@app.route('/todo/', methods=['GET'])
-def todos():
+@app.route('/todo/page/<page>', methods=['GET'])
+def todos(page=0):
     if not session.get('logged_in'):
         return redirect('/login')
-    todos = getTodos()
-    return render_template('todos.html', todos=todos)
+    todos = getTodos(page)
+    return render_template('todos.html', todos=todos, page=page)
 
 
 @app.route('/todo', methods=['POST'])
@@ -93,7 +94,8 @@ def todos_POST():
         g.db.commit()
     except:
         result = 'Error'
-    return render_template('todos.html', todos=getTodos(), result=result)
+    page = 0
+    return render_template('todos.html', todos=getTodos(page), result=result, page=page)
 
 @app.route('/todo/complete/<id>', methods=['POST'])
 def todos_complete(id):
@@ -115,4 +117,5 @@ def todo_delete(id):
         g.db.commit()
     except:
         result = 'Error'
-    return render_template('todos.html', todos=getTodos(), result=result)
+    page = 0
+    return render_template('todos.html', todos=getTodos(page), result=result, page=page)
